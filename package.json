@@ -1,0 +1,47 @@
+{
+  "name": "@gullerya/tooltip",
+  "version": "0.0.1",
+  "description": "tooltip component & services",
+  "keywords": [
+    "tooltip",
+    "visual",
+    "hint",
+    "help"
+  ],
+  "homepage": "https://github.com/gullerya/tooltip",
+  "bugs": {
+    "url": "https://github.com/gullerya/tooltip/issues",
+    "email": "gullerya@gmail.com"
+  },
+  "license": "MIT",
+  "files": [
+    "dist"
+  ],
+  "main": "dist/node-module/@gullerya/tooltip.min.js",
+  "author": {
+    "name": "Guller Yuri",
+    "email": "gullerya@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/gullerya/tooltip"
+  },
+  "scripts": {
+    "eslint": "eslint -c ./build/.eslintrc.json ./src/**/*.js",
+    "build": "node ./build/tools/build-dist.js",
+    "test": "node ./tests/tmp-tests-runner/run-tests.js"
+  },
+  "devDependencies": {
+    "npm": "^6.11.3",
+    "eslint": "^6.4.0",
+    "eslint-config-standard": "^14.1.0",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^4.0.1",
+    "fs-extra": "^8.1.0",
+    "just-test": "^1.5.0",
+    "uglify-es": "^3.3.9",
+    "codecov": "^3.6.1"
+  }
+}
