@@ -27,7 +27,6 @@ export function callout(entries) {
 		return;
 	}
 
-	//	start callout flow
 	const
 		co = document.createElement('call-out'),
 		po = window.getComputedStyle(document.documentElement).overflow;

@@ -1,0 +1,13 @@
+{
+	"tests": {
+		"url": "/tests/test.html"
+	},
+	"coverage": {
+		"include": [
+			"^\/dist\/.+"
+		]
+	},
+	"reports": {
+		"folder": "./reports"
+	}
+}

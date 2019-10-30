@@ -3,7 +3,7 @@ import { tooltip } from '../../dist/tooltip.js';
 
 const suite = createSuite({ name: 'Testing tooltip APIs' });
 
-suite.addTest({ name: 'test A' }, test => {
+suite.runTest({ name: 'test A' }, test => {
 	const
 		divA = document.createElement('div'),
 		divB = document.createElement('div'),
@@ -34,8 +34,4 @@ suite.addTest({ name: 'test A' }, test => {
 		target: divC,
 		content: 'something'
 	});
-
-	test.pass();
 });
-
-suite.run();

@@ -6,7 +6,7 @@
 
 # Summary
 
-__`tooltip`__ provides a related services for tooltip needs
+__`tooltip`__ provides a tooltip component and supporting services/APIs
 
 Main aspects:
 * TODO
@@ -16,4 +16,7 @@ Main aspects:
 * __0.0.1__
   * initial take
 
-TODO
+Requirements:
+- the library should provide a mean to visualise tooltip ajucent to an arbitrary element or bounding rect
+- the library should provide a mean to slot into the tooltip custom content
+- the library should handle the tooltip positioning, with default fallback flow and ability to customize it
