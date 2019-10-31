@@ -1,44 +1,27 @@
 const
-	ENTRIES_LIST = Symbol('entries.list'),
-	CURRENT_INDEX = Symbol('current.entry'),
-	NEXT_METHOD = Symbol('next.method'),
-	PREV_METHOD = Symbol('prev.method'),
-	MOVE_TO_METHOD = Symbol('move.to.method');
+	POSITIONS = { left: 'left', right: 'right', above: 'above', below: 'below' },
+	DEFAULT_POSITION_FALLBACKS = [
+		document.dir === 'rtl' ? POSITIONS.left : POSITIONS.right,
+		document.dir === 'rtl' ? POSITIONS.right : POSITIONS.left,
+		POSITIONS.above,
+		POSITIONS.below
+	];
 
-export function callout(entries) {
-	//	create valid array of targets
-	const ea = (Array.isArray(entries) ? entries : [entries])
-		.filter(e => e && e.target && e.target.nodeType === Node.ELEMENT_NODE && e.content)
-		.map(e => {
-			const re = { target: e.target };
-			if (e.content.nodeType === Node.DOCUMENT_FRAGMENT_NODE) {
-				re.content = e.content;
-			} else {
-				const tmpDF = document.createDocumentFragment();
-				tmpDF.appendChild(document.createTextNode(e.content));
-				re.content = tmpDF;
-			}
-			return re;
-		});
+let positionFallbacks = DEFAULT_POSITION_FALLBACKS;
 
-	//	validate
-	if (!ea.length) {
-		console.error('no (valid) targets to call out over');
-		return;
-	}
+export {
+	POSITIONS,
+	tooltip,
+	setPositionFallbacks
+}
 
-	const
-		co = document.createElement('call-out'),
-		po = window.getComputedStyle(document.documentElement).overflow;
-	document.documentElement.style.overflow = 'hidden';
+function tooltip(target, options) {
 
-	document.documentElement.appendChild(co);
-	co[ENTRIES_LIST] = ea;
-	co[NEXT_METHOD]();
+}
 
-	co.addEventListener('close', () => {
-		document.documentElement.style.overflow = po;
-	});
+function setPositionFallbacks(...pfs) {
+	positionFallbacks = pfs.filter(pf => pf in POSITIONS);
+	positionFallbacks.push(...DEFAULT_POSITION_FALLBACKS.filter(dpf => positionFallbacks.indexOf(dpf) < 0));
 }
 
 const template = document.createElement('template');
@@ -47,188 +30,78 @@ template.innerHTML = `
 	<style>
 		:host {
 			position: fixed;
-			top: 0;
-			left: 0;
-			right: 0;
-			bottom: 0;
+			padding: 24px;
+			display: none;
 			z-index: 9999;
 			overflow: hidden;
+			border-radius: 12px;
+			box-shadow: 0 0 12px rgba(100,100,100,0.5);
+			transition: all 333ms;
 		}
 
-		.man-pan {
-			position: absolute;
-			display: flex;
-			justify-content: center;
-			width: 100%;
-			cursor: default;
-			user-select: none;
+		:host(.pre-shown) {
+			display: block;
+			opacity: 0;
 		}
 
-		.man-pan.above {
-			top: 48px;
+		:host(.shown) {
+			display: block;
+			opacity: 1;
 		}
 
-		.man-pan.below {
-			bottom: 48px;
-		}
-
-		.button {
-			flex: 0 0 48px;
-			height: 32px;
-			margin: 0 8px;
-			border: 1px solid #646464;
-			border-radius: 8px;
-			box-sizing: border-box;
-			box-shadow: inset 0 16px 24px 0px rgba(96, 96, 96, 0.4);
-			background-color: #fff;
-			font-size: 18px;
-			font-weight: bold;
-			line-height: 32px;
-			display: flex;
-			justify-content: center;
-		}
-
-		.callout-vilon {
-			position: absolute;
-			top: 0;
-			left: 0;
-			width: 100%;
-			height: 100%;
-		}
-
-		.mask-overlay {
-			x: 0;
-			y: 0;
-			width: 100%;
-			height: 100%;
-			fill: #aaa;
-		}
-
-		.mask-window {
-			x: calc(50% - 12px);
-			y: calc(50% - 12px);
-			width: 16px;
-			height: 16px;
-			rx: 8px;
-			transition: all 400ms ease;
+		:host(.inverse) {
+			color: #fff;
+			background-color: #000;
+			box-shadow: none;
 		}
 	</style>
 
-	<svg class="callout-vilon">
-		<defs>
-			<mask id="callout-mask">
-				<rect class="mask-overlay"/>
-				<rect class="mask-window"/>
-			</mask>
-		</defs>
-		<rect x="0" y="0" width="100%" height="100%" mask="url(#callout-mask)"/>
-	</svg>
-	<div class="man-pan">
-		<div class="button prev">&#11207;</div>
-		<div class="button next">&#11208;</div>
-		<div class="button close">&times;</div>
-	</div>
+	<slot></slot>
 `;
 
-customElements.define('call-out', class extends HTMLElement {
+customElements.define('tool-tip', class extends HTMLElement {
 	constructor() {
 		super();
 		const s = this.attachShadow({ mode: 'open' });
 		s.appendChild(template.content.cloneNode(true));
-		s.querySelector('.button.next').addEventListener('click', () => {
-			this[NEXT_METHOD]();
+	}
+
+	connectedCallback() {
+		const
+			targetId = this.dataset.targetId,
+			targetClass = this.dataset.targetClass;
+		if (!targetId && !targetClass) {
+			console.error('tooltip has nor target-id neither target-class defined, this tooltip will not be used');
+			return;
+		}
+		const root = this.getRootNode();
+		const candidates = root.querySelectorAll(targetId ? ('#' + targetId) : ('.' + targetClass));
+		if (!candidates.length) {
+			console.error('failed to match any target element by id "' + targetId + '", this tooltip will not be used');
+			return;
+		}
+		candidates.forEach(c => {
+			c.addEventListener('mouseenter', event => this.show(event.target));
+			c.addEventListener('mouseleave', event => this.hide());
 		});
-		s.querySelector('.button.prev').addEventListener('click', () => {
-			this[PREV_METHOD]();
-		});
-		s.querySelector('.button.close').addEventListener('click', () => {
-			this.parentNode.removeChild(this);
-			this.dispatchEvent(new Event('close'));
-		});
-		this[CURRENT_INDEX] = -1;
 	}
 
-	[NEXT_METHOD]() {
-		const
-			entries = this[ENTRIES_LIST],
-			nextIndex = this[CURRENT_INDEX] + 1;
-
-		if (!entries || !entries.length) {
-			console.error('no entries list');
-			return;
-		}
-		if (nextIndex >= entries.length) {
-			console.error('should NOT "next" after last');
-			return;
-		}
-
-		this[MOVE_TO_METHOD](entries[nextIndex]);
-		this[CURRENT_INDEX] = nextIndex;
-		if (nextIndex === 0) {
-			this.classList.add('first');
-		} else {
-			this.classList.remove('first');
-		}
-		if (nextIndex === entries.length - 1) {
-			this.classList.add('last');
-		}
+	show(target) {
+		this.classList.add('pre-shown');
+		const targetRect = this.getTargetRect(target);
+		const selfPosition = {
+			top: (targetRect.y + targetRect.height / 2 - this.offsetHeight / 2) + 'px',
+			left: targetRect.x + targetRect.width + 12 + 'px'
+		};
+		Object.assign(this.style, selfPosition);
+		this.classList.replace('pre-shown', 'shown');
 	}
 
-	[PREV_METHOD]() {
-		const
-			entries = this[ENTRIES_LIST],
-			prevIndex = this[CURRENT_INDEX] - 1;
-
-		if (!entries || !entries.length) {
-			console.error('no entries list');
-			return;
-		}
-		if (prevIndex < 0) {
-			console.error('should NOT "prev" before first');
-			return;
-		}
-
-		this[MOVE_TO_METHOD](entries[prevIndex]);
-		this[CURRENT_INDEX] = prevIndex;
-		if (prevIndex === 0) {
-			this.classList.add('first');
-		}
-		if (prevIndex === entries.length - 2) {
-			this.classList.remove('last');
-		}
+	hide() {
+		this.classList.remove('shown');
 	}
 
-	[MOVE_TO_METHOD](entry) {
-		this.ensureElementSeen(entry.target);
-
-		const
-			r = this.getScreenRect(entry.target),
-			av = {
-				x: (r.x - 4) + 'px',
-				y: (r.y - 4) + 'px',
-				width: (Math.max(16, r.width) + 8) + 'px',
-				height: (Math.max(16, r.height) + 8) + 'px'
-			},
-			m = this.shadowRoot.querySelector('.mask-window');
-
-		Object.assign(m.style, av);
-
-		const
-			mp = this.shadowRoot.querySelector('.man-pan');
-		if (r.bottom > document.documentElement.clientHeight / 2) {
-			mp.classList.remove('below')
-			mp.classList.add('above');
-		} else {
-			mp.classList.remove('above')
-			mp.classList.add('below');
-		}
-	}
-
-	ensureElementSeen(e) {
-		e.scrollIntoView();
-	}
-
-	getScreenRect(e) {
+	getTargetRect(e) {
 		return e.getBoundingClientRect();
 	}
 });

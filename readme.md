@@ -20,3 +20,12 @@ Requirements:
 - the library should provide a mean to visualise tooltip ajucent to an arbitrary element or bounding rect
 - the library should provide a mean to slot into the tooltip custom content
 - the library should handle the tooltip positioning, with default fallback flow and ability to customize it
+
+Statically specified content?
+Like:
+
+<toot-tip target='some-element-id'>
+    <anything-here>
+        is the slotted content of the tooltip itself
+    </anything-here>
+</tool-tip>
