@@ -8,24 +8,15 @@
 
 __`tooltip`__ provides a tooltip component and supporting services/APIs
 
-Main aspects:
-* TODO
-
 #### Last versions (full changelog is [here](https://github.com/gullerya/tooltip/blob/master/docs/changelog.md))
 
 * __0.0.1__
   * initial take
 
-Requirements:
-- the library should provide a mean to visualise tooltip ajucent to an arbitrary element or bounding rect
-- the library should provide a mean to slot into the tooltip custom content
-- the library should handle the tooltip positioning, with default fallback flow and ability to customize it
+# Usage
 
-Statically specified content?
-Like:
+TBD
 
-<toot-tip target='some-element-id'>
-    <anything-here>
-        is the slotted content of the tooltip itself
-    </anything-here>
-</tool-tip>
+# API
+
+TBD
