@@ -2,13 +2,16 @@ const
 	CALC_TARGET_RECT_KEY = Symbol('calc.target.rect'),
 	CALC_POSITION_KEY = Symbol('calc.position'),
 	POSITION_KEY = Symbol('position.key'),
+	SHOW_DELAY_KEY = Symbol('show.delay.key'),
+	SHOW_TIMEOUT_KEY = Symbol('future.show.key'),
 	POSITIONS = Object.freeze({ far: 'far', near: 'near', below: 'below', above: 'above' }),
 	DEFAULT_POSITION_FALLBACKS = Object.freeze([
 		POSITIONS.below,
 		POSITIONS.above,
 		POSITIONS.far,
 		POSITIONS.near
-	]);
+	]),
+	DEFAULT_SHOW_DELAY = 253;
 
 let positionFallbacks = DEFAULT_POSITION_FALLBACKS;
 
@@ -39,17 +42,19 @@ template.innerHTML = `
 			overflow: hidden;
 			border-radius: 12px;
 			box-shadow: 0 0 12px rgba(100,100,100,0.5);
-			transition: opacity 333ms;
+			transition: opacity 333ms, transform 333ms;
 		}
 
 		:host(.pre-shown) {
 			display: block;
 			opacity: 0;
+			transform: scale(0.85);
 		}
 
 		:host(.shown) {
 			display: block;
 			opacity: 1;
+			transform: scale(1);
 		}
 
 		:host(.inverse) {
@@ -73,6 +78,9 @@ customElements.define('tool-tip', class extends HTMLElement {
 		if (!this[POSITION_KEY]) {
 			this[POSITION_KEY] = this.dataset.position || positionFallbacks[0];
 		}
+		if (!this[SHOW_DELAY_KEY]) {
+			this[SHOW_DELAY_KEY] = this.dataset.showDelay || DEFAULT_SHOW_DELAY;
+		}
 
 		const
 			targetId = this.dataset.targetId,
@@ -88,8 +96,22 @@ customElements.define('tool-tip', class extends HTMLElement {
 			return;
 		}
 		candidates.forEach(c => {
-			c.addEventListener('mouseenter', event => this.show(event.target));
-			c.addEventListener('mouseleave', event => this.hide());
+			c.addEventListener('mouseenter', event => {
+				if (!this[SHOW_TIMEOUT_KEY]) {
+					this[SHOW_TIMEOUT_KEY] = setTimeout(() => {
+						this[SHOW_TIMEOUT_KEY] = null;
+						this.show(event.target);
+					}, this.showDelay);
+				}
+			});
+			c.addEventListener('mouseleave', event => {
+				if (this.classList.contains('shown')) {
+					this.hide();
+				} else if (this[SHOW_TIMEOUT_KEY]) {
+					clearTimeout(this[SHOW_TIMEOUT_KEY]);
+					this[SHOW_TIMEOUT_KEY] = null;
+				}
+			});
 		});
 	}
 
@@ -112,6 +134,16 @@ customElements.define('tool-tip', class extends HTMLElement {
 	set position(position) {
 		if (position in POSITIONS && this[POSITION_KEY] !== position) {
 			this[POSITION_KEY] = position;
+		}
+	}
+
+	get showDelay() {
+		return this[SHOW_DELAY_KEY];
+	}
+
+	set showDelay(showDelay) {
+		if (typeof showDelay === 'number' && !isNaN(showDelay) && this[SHOW_DELAY_KEY] !== showDelay) {
+			this[SHOW_DELAY_KEY] = showDelay;
 		}
 	}
 
