@@ -18,6 +18,8 @@ suite.runTest({ name: 'test A' }, test => {
 	divA.style.overflow = 'auto';
 	divA.style.outline = '2px solid blue';
 	document.body.appendChild(divA);
+	const mtt = tooltip(divA, 'some tooltip text');
+	setTimeout(() => mtt.parentElement.removeChild(mtt), 3000);
 
 	divB.classList.add('div-b-class');
 	divB.style.position = 'absolute';

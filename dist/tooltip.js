@@ -21,8 +21,26 @@ export {
 	setPositionFallbacks
 }
 
-function tooltip(target, options) {
+function tooltip(target, content, options) {
+	//	validate and set defaults
+	if (!target || target.nodeType !== Node.ELEMENT_NODE) {
+		throw new Error('target MUST be an Element node');
+	}
+	if (!target.id) {
+		throw new Error('target MUST have a non-empty (unique) "id" property');
+	}
+	if (!content || (typeof content !== 'string' && content.nodeType !== Node.ELEMENT_NODE && content.nodeType !== Node.TEXT_NODE)) {
+		throw new Error('invalid content, MUST either be a "string", an Element node or a Text node');
+	}
+	//	TODO: validate the target and the options
 
+	const tt = document.createElement('tool-tip');
+	typeof content === 'string'
+		? tt.innerText = content
+		: tt.appendChild(content);
+	document.body.appendChild(tt);
+	tt.show(target);
+	return tt;
 }
 
 function setPositionFallbacks(...pfs) {
