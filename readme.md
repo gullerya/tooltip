@@ -10,7 +10,7 @@ __`tooltip`__ provides a tooltip component and supporting services/APIs
 
 #### Last versions (full changelog is [here](https://github.com/gullerya/tooltip/blob/master/docs/changelog.md))
 
-* __0.0.1__
+* __0.1.0__
   * initial take
 
 # Usage
