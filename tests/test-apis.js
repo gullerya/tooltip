@@ -1,5 +1,5 @@
 ﻿import { createSuite } from '../../node_modules/just-test/dist/just-test.min.js'
-import { tooltip } from '../../dist/tooltip.js';
+import { tooltip, POSITIONS } from '../../dist/tooltip.js';
 
 const suite = createSuite({ name: 'Testing tooltip APIs' });
 
@@ -29,6 +29,7 @@ suite.runTest({ name: 'test A' }, test => {
 	divB.style.outline = '2px solid red';
 	document.body.appendChild(divB);
 
+	divC.id = 'div-c-id';
 	divC.style.position = 'absolute';
 	divC.style.top = '200px';
 	divC.textContent = 'some thing to call out over';
@@ -36,13 +37,23 @@ suite.runTest({ name: 'test A' }, test => {
 	document.body.appendChild(divC);
 
 	const ttA = document.createElement('tool-tip');
-	ttA.setAttribute('data-target-id', 'div-a-id');
+	ttA.setAttribute('data-target-id', 'div-c-id');
+	ttA.position = POSITIONS.above;
 	ttA.textContent = 'Div A tooltip';
 	document.body.appendChild(ttA);
 
 	const ttB = document.createElement('tool-tip');
 	ttB.classList.add('inverse');
 	ttB.dataset.targetClass = 'div-b-class';
-	ttB.textContent = 'Div B tooltip with a very very very very very very very very very very very very very very long content';
+	ttB.dataset.position = POSITIONS.near;
+	ttB.innerHTML = `
+		<div>
+			<div>
+				<div>Line A: title</div>
+				<div>Div B tooltip with a very very very very very very very very very very very very very very long content</div>
+				<div>footnotes</div>
+			</div>
+		</div>
+	`;
 	document.body.appendChild(ttB);
 });
