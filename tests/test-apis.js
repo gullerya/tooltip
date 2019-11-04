@@ -77,3 +77,29 @@ suite.runTest({ name: 'test A' }, async test => {
 
 	mtt.remove();
 });
+
+suite.runTest({ name: 'test tooltip in shadow DOM' }, async test => {
+	const
+		divS = document.createElement('div'),
+		divT = document.createElement('div');
+
+	divS.style.position = 'absolute';
+	divS.style.top = '200px';
+	divS.style.left = '200px';
+	divS.style.width = '400px';
+	divS.style.height = '200px';
+	divS.style.overflow = 'auto';
+	divS.style.outline = '2px solid blue';
+	document.body.appendChild(divS);
+
+	divT.id = 'div-in-shadow';
+	divT.style.outline = '2px solid gray';
+	divT.textContent = 'target in shadow';
+	divS.attachShadow({ mode: 'open' }).appendChild(divT);
+
+	const tt = document.createElement('tool-tip');
+	tt.dataset.targetId = 'div-in-shadow';
+	tt.position = POSITIONS.above;
+	tt.textContent = 'Div in shadow tooltip';
+	divS.shadowRoot.appendChild(tt);
+});
