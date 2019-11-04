@@ -14,7 +14,6 @@ suite.runTest({ name: 'test A' }, async test => {
 	divA.style.left = '100px';
 	divA.style.width = '400px';
 	divA.style.height = '200px';
-	divA.style.overflow = 'auto';
 	divA.style.outline = '2px solid blue';
 	document.body.appendChild(divA);
 
@@ -24,7 +23,6 @@ suite.runTest({ name: 'test A' }, async test => {
 	divB.style.left = '100px';
 	divB.style.width = '200px';
 	divB.style.height = '100px';
-	divB.style.overflow = 'auto';
 	divB.style.outline = '2px solid red';
 	document.body.appendChild(divB);
 
@@ -88,7 +86,6 @@ suite.runTest({ name: 'test tooltip in shadow DOM' }, async test => {
 	divS.style.left = '200px';
 	divS.style.width = '400px';
 	divS.style.height = '200px';
-	divS.style.overflow = 'auto';
 	divS.style.outline = '2px solid blue';
 	document.body.appendChild(divS);
 
@@ -102,4 +99,58 @@ suite.runTest({ name: 'test tooltip in shadow DOM' }, async test => {
 	tt.position = POSITIONS.above;
 	tt.textContent = 'Div in shadow tooltip';
 	divS.shadowRoot.appendChild(tt);
+});
+
+suite.runTest({ name: 'test tooltip falback from below to above' }, async test => {
+	const divS = document.createElement('div');
+
+	divS.id = 'bottom-fallback-above';
+	divS.style.position = 'absolute';
+	divS.style.bottom = '20px';
+	divS.style.left = '50px';
+	divS.style.width = '50px';
+	divS.style.height = '50px';
+	divS.style.outline = '2px solid blue';
+	document.body.appendChild(divS);
+
+	const tt = document.createElement('tool-tip');
+	tt.dataset.targetId = 'bottom-fallback-above';
+	tt.textContent = 'Bottom fallback above';
+	document.body.appendChild(tt);
+});
+
+suite.runTest({ name: 'test tooltip falback from below via above and far to near' }, async test => {
+	const divS = document.createElement('div');
+
+	divS.id = 'bottom-fallback-above-fallback-far-fallback-near';
+	divS.style.position = 'absolute';
+	divS.style.top = '20px';
+	divS.style.bottom = '20px';
+	divS.style.left = '150px';
+	divS.style.width = '50px';
+	divS.style.outline = '2px solid red';
+	document.body.appendChild(divS);
+
+	const tt = document.createElement('tool-tip');
+	tt.dataset.targetId = 'bottom-fallback-above-fallback-far-fallback-near';
+	tt.textContent = 'Bottom fallback above fallback far fallback near';
+	document.body.appendChild(tt);
+});
+
+suite.runTest({ name: 'test tooltip falback from below via above to far' }, async test => {
+	const divS = document.createElement('div');
+
+	divS.id = 'bottom-fallback-above-fallback-far';
+	divS.style.position = 'absolute';
+	divS.style.top = '20px';
+	divS.style.bottom = '20px';
+	divS.style.left = '550px';
+	divS.style.width = '50px';
+	divS.style.outline = '2px solid green';
+	document.body.appendChild(divS);
+
+	const tt = document.createElement('tool-tip');
+	tt.dataset.targetId = 'bottom-fallback-above-fallback-far';
+	tt.textContent = 'Bottom fallback above fallback far';
+	document.body.appendChild(tt);
 });

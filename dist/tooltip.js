@@ -43,6 +43,8 @@ template.innerHTML = `
 			z-index: 9999;
 			overflow: hidden;
 			border-radius: 8px;
+			font-family: sans-serif;
+			font-size: 0.8em;
 			transition: opacity 333ms, transform 333ms;
 			color: #fff;
 			background-color: #000;
@@ -51,7 +53,7 @@ template.innerHTML = `
 		:host(.pre-shown) {
 			display: block;
 			opacity: 0;
-			transform: scale(0.85);
+			transform: scale(0.96);
 		}
 
 		:host(.shown) {
@@ -200,14 +202,14 @@ customElements.define('tool-tip', class extends HTMLElement {
 				l = Math.min(vw - w - 12, l);
 				result.top = (targetRect.y - h - 12) + 'px';
 				result.left = l + 'px';
-			} else if (((p === POSITIONS.far && rtl) || (p === POSITIONS.near && !rtl)) && targetRect.x >= w + 12) {
+			} else if (((p === POSITIONS.far && rtl) || (p === POSITIONS.near && !rtl)) && w <= targetRect.x - 12) {
 				//	left
 				let t = targetRect.y + targetRect.height / 2 - h / 2;
 				t = Math.max(12, t);
 				t = Math.min(vh - h - 12, t);
 				result.top = t + 'px';
 				result.left = (targetRect.x - w - 12) + 'px';
-			} else if (vw - targetRect.right >= w + 12) {
+			} else if (((p === POSITIONS.near && rtl) || (p === POSITIONS.far && !rtl)) && w <= vw - targetRect.right - 12) {
 				//	right
 				let t = targetRect.y + targetRect.height / 2 - h / 2;
 				t = Math.max(12, t);
