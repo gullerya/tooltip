@@ -3,13 +3,12 @@ import { tooltip, POSITIONS } from '../../dist/tooltip.js';
 
 const suite = createSuite({ name: 'Testing tooltip APIs' });
 
-suite.runTest({ name: 'test A' }, test => {
+suite.runTest({ name: 'test A' }, async test => {
 	const
 		divA = document.createElement('div'),
 		divB = document.createElement('div'),
 		divC = document.createElement('div');
 
-	divA.id = 'div-a-id';
 	divA.style.position = 'absolute';
 	divA.style.top = '100px';
 	divA.style.left = '100px';
@@ -18,8 +17,6 @@ suite.runTest({ name: 'test A' }, test => {
 	divA.style.overflow = 'auto';
 	divA.style.outline = '2px solid blue';
 	document.body.appendChild(divA);
-	const mtt = tooltip(divA, 'some tooltip text');
-	setTimeout(() => mtt.parentElement.removeChild(mtt), 3000);
 
 	divB.classList.add('div-b-class');
 	divB.style.position = 'absolute';
@@ -45,7 +42,7 @@ suite.runTest({ name: 'test A' }, test => {
 	document.body.appendChild(ttA);
 
 	const ttB = document.createElement('tool-tip');
-	ttB.classList.add('inverse');
+	ttB.classList.add('light');
 	ttB.dataset.targetClass = 'div-b-class';
 	ttB.dataset.position = POSITIONS.near;
 	ttB.innerHTML = `
@@ -58,4 +55,25 @@ suite.runTest({ name: 'test A' }, test => {
 		</div>
 	`;
 	document.body.appendChild(ttB);
+
+	//	automated flow with single tooltip
+	const mtt = tooltip();
+	mtt.show(divA, 'Div A tooltip');
+	await test.waitMillis(3000);
+	mtt.hide();
+	await test.waitMillis(500);
+
+	mtt.classList.add('light');
+	const ttc = document.createElement('span');
+	ttc.textContent = 'Div B tooltip';
+	mtt.show(divB, ttc);
+	await test.waitMillis(2000);
+	mtt.hide();
+	await test.waitMillis(500);
+
+	mtt.classList.remove('light');
+	mtt.show(divC, 'Div C tooltip');
+	await test.waitMillis(1000);
+
+	mtt.remove();
 });

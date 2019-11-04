@@ -11,7 +11,7 @@ const
 		POSITIONS.far,
 		POSITIONS.near
 	]),
-	DEFAULT_SHOW_DELAY = 253;
+	DEFAULT_SHOW_DELAY = 375;
 
 let positionFallbacks = DEFAULT_POSITION_FALLBACKS;
 
@@ -21,25 +21,9 @@ export {
 	setPositionFallbacks
 }
 
-function tooltip(target, content, options) {
-	//	validate and set defaults
-	if (!target || target.nodeType !== Node.ELEMENT_NODE) {
-		throw new Error('target MUST be an Element node');
-	}
-	if (!target.id) {
-		throw new Error('target MUST have a non-empty (unique) "id" property');
-	}
-	if (!content || (typeof content !== 'string' && content.nodeType !== Node.ELEMENT_NODE && content.nodeType !== Node.TEXT_NODE)) {
-		throw new Error('invalid content, MUST either be a "string", an Element node or a Text node');
-	}
-	//	TODO: validate the target and the options
-
+function tooltip(options) {
 	const tt = document.createElement('tool-tip');
-	typeof content === 'string'
-		? tt.innerText = content
-		: tt.appendChild(content);
 	document.body.appendChild(tt);
-	tt.show(target);
 	return tt;
 }
 
@@ -54,13 +38,14 @@ template.innerHTML = `
 	<style>
 		:host {
 			position: fixed;
-			padding: 24px;
+			padding: 12px;
 			display: none;
 			z-index: 9999;
 			overflow: hidden;
-			border-radius: 12px;
-			box-shadow: 0 0 12px rgba(100,100,100,0.5);
+			border-radius: 8px;
 			transition: opacity 333ms, transform 333ms;
+			color: #fff;
+			background-color: #000;
 		}
 
 		:host(.pre-shown) {
@@ -75,10 +60,10 @@ template.innerHTML = `
 			transform: scale(1);
 		}
 
-		:host(.inverse) {
-			color: #fff;
-			background-color: #000;
-			box-shadow: none;
+		:host(.light) {
+			color: #000;
+			background-color: #fff;
+			box-shadow: 0 0 6px rgba(100,100,100,0.5);
 		}
 	</style>
 
@@ -104,45 +89,64 @@ customElements.define('tool-tip', class extends HTMLElement {
 			targetId = this.dataset.targetId,
 			targetClass = this.dataset.targetClass;
 		if (!targetId && !targetClass) {
-			console.error('tooltip has nor target-id neither target-class defined, this tooltip will not be used');
-			return;
+			console.info('tooltip has nor target-id neither target-class defined, JS driven mode');
+		} else {
+			const root = this.getRootNode();
+			const candidates = root.querySelectorAll(targetId ? ('#' + targetId) : ('.' + targetClass));
+			if (candidates.length) {
+				candidates.forEach(c => {
+					c.addEventListener('mouseenter', event => {
+						if (!this[SHOW_TIMEOUT_KEY]) {
+							this[SHOW_TIMEOUT_KEY] = setTimeout(() => {
+								this[SHOW_TIMEOUT_KEY] = null;
+								this.show(event.target);
+							}, this.showDelay);
+						}
+					});
+					c.addEventListener('mouseleave', event => {
+						if (this.classList.contains('shown')) {
+							this.hide();
+						} else if (this[SHOW_TIMEOUT_KEY]) {
+							clearTimeout(this[SHOW_TIMEOUT_KEY]);
+							this[SHOW_TIMEOUT_KEY] = null;
+						}
+					});
+				});
+			} else {
+				console.warn('failed to match any target element by id "' + targetId + '", JS driven mode');
+			}
 		}
-		const root = this.getRootNode();
-		const candidates = root.querySelectorAll(targetId ? ('#' + targetId) : ('.' + targetClass));
-		if (!candidates.length) {
-			console.error('failed to match any target element by id "' + targetId + '", this tooltip will not be used');
-			return;
-		}
-		candidates.forEach(c => {
-			c.addEventListener('mouseenter', event => {
-				if (!this[SHOW_TIMEOUT_KEY]) {
-					this[SHOW_TIMEOUT_KEY] = setTimeout(() => {
-						this[SHOW_TIMEOUT_KEY] = null;
-						this.show(event.target);
-					}, this.showDelay);
-				}
-			});
-			c.addEventListener('mouseleave', event => {
-				if (this.classList.contains('shown')) {
-					this.hide();
-				} else if (this[SHOW_TIMEOUT_KEY]) {
-					clearTimeout(this[SHOW_TIMEOUT_KEY]);
-					this[SHOW_TIMEOUT_KEY] = null;
-				}
-			});
-		});
 	}
 
-	show(target) {
+	show(target, content) {
+		this.classList.remove('shown');
 		this.classList.add('pre-shown');
+
+		if (content) {
+			if (typeof content === 'string') {
+				this.innerHTML = content;
+			} else if (content.nodeType === Node.ELEMENT_NODE || content.nodeType === Node.TEXT_NODE) {
+				this.innerHTML = '';
+				this.appendChild(content);
+			} else {
+				console.warn('invalid content "' + content + '" (nor "string" neither "Element"), ingnoring it');
+			}
+		}
+
 		const targetRect = this[CALC_TARGET_RECT_KEY](target);
 		const selfPosition = this[CALC_POSITION_KEY](targetRect);
 		Object.assign(this.style, selfPosition);
+
 		this.classList.replace('pre-shown', 'shown');
 	}
 
 	hide() {
 		this.classList.remove('shown');
+	}
+
+	remove() {
+		this.hide();
+		this.parentElement.removeChild(this);
 	}
 
 	get position() {
