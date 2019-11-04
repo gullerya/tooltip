@@ -154,3 +154,22 @@ suite.runTest({ name: 'test tooltip falback from below via above to far' }, asyn
 	tt.textContent = 'Bottom fallback above fallback far';
 	document.body.appendChild(tt);
 });
+
+suite.runTest({ name: 'test tooltip disabled' }, async test => {
+	const divS = document.createElement('div');
+
+	divS.id = 'disabled-tooltip';
+	divS.style.position = 'absolute';
+	divS.style.bottom = '20px';
+	divS.style.right = '20px';
+	divS.style.height = '50px';
+	divS.style.width = '50px';
+	divS.style.outline = '2px solid orange';
+	document.body.appendChild(divS);
+
+	const tt = document.createElement('tool-tip');
+	tt.setAttribute('disabled', 'disabled');
+	tt.dataset.targetId = 'disabled-tooltip';
+	tt.textContent = 'Disabled, should not be seen';
+	document.body.appendChild(tt);
+});

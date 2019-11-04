@@ -10,6 +10,9 @@ __`tooltip`__ provides a tooltip component and supporting services/APIs
 
 #### Last versions (full changelog is [here](https://github.com/gullerya/tooltip/blob/master/docs/changelog.md))
 
+* __1.0.0__
+  * implemented [Issue #3](https://github.com/gullerya/tooltip/issues/2) - support `disabled` functionality
+
 * __0.3.1__
   * fixed [Issue #2](https://github.com/gullerya/tooltip/issues/2) - NPE caused tooltip to not show up in some scenarios
 

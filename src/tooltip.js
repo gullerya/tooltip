@@ -98,6 +98,10 @@ customElements.define('tool-tip', class extends HTMLElement {
 			if (candidates.length) {
 				candidates.forEach(c => {
 					c.addEventListener('mouseenter', event => {
+						if (this.disabled) {
+							return;
+						}
+
 						const t = event.target;
 						if (!this[SHOW_TIMEOUT_KEY]) {
 							this[SHOW_TIMEOUT_KEY] = setTimeout(() => {
@@ -107,6 +111,10 @@ customElements.define('tool-tip', class extends HTMLElement {
 						}
 					});
 					c.addEventListener('mouseleave', event => {
+						if (this.disabled) {
+							return;
+						}
+
 						if (this.classList.contains('shown')) {
 							this.hide();
 						} else if (this[SHOW_TIMEOUT_KEY]) {
@@ -170,6 +178,10 @@ customElements.define('tool-tip', class extends HTMLElement {
 		if (typeof showDelay === 'number' && !isNaN(showDelay) && this[SHOW_DELAY_KEY] !== showDelay) {
 			this[SHOW_DELAY_KEY] = showDelay;
 		}
+	}
+
+	get disabled() {
+		return this.hasAttribute('disabled') || this.classList.contains('disabled');
 	}
 
 	[CALC_TARGET_RECT_KEY](e) {
