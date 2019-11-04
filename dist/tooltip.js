@@ -125,7 +125,7 @@ customElements.define('tool-tip', class extends HTMLElement {
 		if (content) {
 			if (typeof content === 'string') {
 				this.innerHTML = content;
-			} else if (content.nodeType === Node.ELEMENT_NODE || content.nodeType === Node.TEXT_NODE) {
+			} else if (content.nodeType === Node.ELEMENT_NODE || content.nodeType === Node.DOCUMENT_FRAGMENT_NODE || content.nodeType === Node.TEXT_NODE) {
 				this.innerHTML = '';
 				this.appendChild(content);
 			} else {
