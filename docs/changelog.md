@@ -1,6 +1,6 @@
 # Changelog
 
-* __1.0.0__
+* __1.0.1__
   * implemented [Issue #3](https://github.com/gullerya/tooltip/issues/2) - support `disabled` functionality
 
 * __0.3.1__

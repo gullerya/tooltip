@@ -110,11 +110,7 @@ customElements.define('tool-tip', class extends HTMLElement {
 							}, this.showDelay);
 						}
 					});
-					c.addEventListener('mouseleave', event => {
-						if (this.disabled) {
-							return;
-						}
-
+					c.addEventListener('mouseleave', () => {
 						if (this.classList.contains('shown')) {
 							this.hide();
 						} else if (this[SHOW_TIMEOUT_KEY]) {
