@@ -1,6 +1,6 @@
 {
   "name": "@gullerya/tooltip",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "tooltip component & services",
   "keywords": [
     "tooltip",
@@ -17,7 +17,7 @@
   "files": [
     "dist"
   ],
-  "brouser": "dist/node-module/@gullerya/tooltip.min.js",
+  "browser": "dist/node-module/@gullerya/tooltip.min.js",
   "author": {
     "name": "Guller Yuri",
     "email": "gullerya@gmail.com"
